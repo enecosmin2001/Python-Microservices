@@ -6,6 +6,8 @@ from .serializers import ProductSerializer
 
 from .models import Product, User
 
+from .producer import publish
+
 import random
 
 class ProductViewSet(viewsets.ViewSet):
@@ -14,9 +16,8 @@ class ProductViewSet(viewsets.ViewSet):
     def list(self, request): # GET /api/products 
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
-
+        publish()
         return Response(serializer.data)
-
 
     def create(self, request): # POST /api/products 
         serializer = ProductSerializer(data=request.data)
