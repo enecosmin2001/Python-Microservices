@@ -133,3 +133,6 @@ pms-workspace/
 
 # MAC specific files
 .DS_Store
+
+# database local files
+*.dbdata
