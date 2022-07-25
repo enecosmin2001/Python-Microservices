@@ -1,11 +1,13 @@
-import pika 
+import pika, json
 
-params = pika.URLParameters('amqps://btwdpfjz:KY6sejA6-DMijyCDO8I0Hz3kgk4A-wrE@chimpanzee.rmq.cloudamqp.com/btwdpfjz')
+params = pika.URLParameters('amqps://zjdpztgf:YqG4aibENmEjIP53I_egIJuXbNWTD3Ba@moose.rmq.cloudamqp.com/zjdpztgf')
 
 connection = pika.BlockingConnection(params)
 
 channel = connection.channel()
 
-def publish():
-    channel.basic_publish(exchange='', routing_key='main', body='hello main')
+def publish(method, body):
+    properties = pika.BasicProperties(method)
+    print(f"Sending producer body: {json.dumps(body)}")
+    channel.basic_publish(exchange='', routing_key='main', body=json.dumps(body), properties=properties)
 
