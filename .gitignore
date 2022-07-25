@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# virtualenv 
+pms-workspace/
+
+# MAC specific files
+.DS_Store
