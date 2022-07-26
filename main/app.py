@@ -1,9 +1,13 @@
-from flask import Flask, jsonify
+import requests
+
+from flask import Flask, jsonify, abort
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
+
+from producer import publish
 
 app = Flask(__name__)
 
@@ -37,11 +41,33 @@ class ProductUserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = ProductUser
 
+
 @app.route('/api/products')
 def index():
     products = Product.query.all()
     products_schema = ProductSchema(many=True)
     return jsonify(products_schema.dump(products))
+
+
+@app.route('/api/products/<int:id>/like', methods=['POST'])
+def like(id):
+    req = requests.get('http://docker.for.mac.localhost:8000/api/user')
+    json = req.json()
+
+    try:
+        product_user = ProductUser(user_id=json['id'], product_id=id)
+        db.session.add(product_user)
+        db.session.commit()
+
+        publish('product_liked', {'id': id})
+    except Exception as e:
+        print(e)
+        abort(400, 'You already liked this product.')
+
+    return jsonify({
+        'message': 'success'
+    })
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)

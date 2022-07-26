@@ -16,10 +16,14 @@ def callback(ch, method, properties, body):
     print(data)
 
     if properties.content_type == 'product_created':
-        product = Product(id=data['id'], title=data['title'], image=data['image'])
-        db.session.add(product)
-        db.session.commit()
-        print('Product created')
+        existing = Product.query.get(data['id'])
+        if existing:
+            print('Product exists')
+        else:
+            product = Product(id=data['id'], title=data['title'], image=data['image'])
+            db.session.add(product)
+            db.session.commit()
+            print('Product created')
 
     elif properties.content_type == 'product_updated':
         product = Product.query.get(data['id'])
@@ -34,7 +38,7 @@ def callback(ch, method, properties, body):
         db.session.commit()
         print('Product deleted')
 
-channel.basic_consume(queue='main', on_message_callback=callback)
+channel.basic_consume(queue='main', on_message_callback=callback, auto_ack=True)
 
 print("Started consuming")
 
